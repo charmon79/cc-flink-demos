@@ -116,9 +116,13 @@ BEGIN
 END;
 ```
 
-### Wrap both tables in a GROUP BY to include late data in hourly totals
+### Bonus: Use a subsequent Flink SQL statement to process the late records
 
-Caution! Flink needs to maintain more state for this since it's a regular GROUP BY. The result will also be a `retract` changelog, since groups need to be updated as new rows are processed.
+If we want, we can use a subsequent Flink SQL statement to union the late-arriving records to the result of the hourly windowed aggregation, then use a GROUP BY statement to effectively "assign" them to the appropriate windows & emit updated aggregates.
+
+NOTE: This method is only feasible for TUMBLE windows, because they are non-overlapping (unlike HOP or CUMULATE windows) and have deterministic boundaries (unlike SESSION windows).
+
+Be mindful that Flink needs to maintain more state for this statement, since it's a regular, unbounded GROUP BY aggregation. The result will also be a `retract` changelog, because groups need to be updated as new rows are processed.
 
 ```
 SET 'sql.state-ttl' = '7d';
