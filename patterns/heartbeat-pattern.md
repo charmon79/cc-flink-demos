@@ -1,3 +1,18 @@
+# Heartbeat pattern
+
+Flink SQL streaming queries depend upon a continuous flow of new events to advance event time in order for event-time based operations to emit results.
+
+Event-time based operations include:
+
+* Temporal JOINs
+* Interval JOINs
+* Window TVFs (i.e. TUMBLE, HOP, CUMULATE, SESSION)
+* OVER aggregations
+
+In some use cases, there may not always be a continuous flow of events. There could be quiet periods due to business hours, or data sources which generate data on a more batch-oriented, scheduled basis.
+
+To ensure that event time for the Flink job advances and results are still emitted in situations like windowed aggregations, we can implement a "heartbeat" pattern to inject dummy events into the stream to force event time to always advance.
+
 
 ## Demo
 
