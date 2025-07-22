@@ -13,6 +13,10 @@ In some use cases, there may not always be a continuous flow of events. There co
 
 To ensure that event time for the Flink job advances and results are still emitted in situations like windowed aggregations, we can implement a "heartbeat" pattern to inject dummy events into the stream to force event time to always advance.
 
+We *could* produce dummy records directly into the Kafka topics that contain the real events we're interested in, but that has some obvious drawbacks we'd have to modify all consumers to filter out the dummy records on the consumer's end. So that's not ideal
+
+Instead, we can use a separate Kafka topic whose sole purpose is to carry heartbeat events. Then, we can UNION that topic with the records we're really interested in, and have Flink filter out the heartbeat records from the output so they don't affect downstream consumers.
+
 
 ## Demo
 
